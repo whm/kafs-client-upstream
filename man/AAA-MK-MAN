@@ -1,0 +1,60 @@
+#!/bin/bash
+
+VERSION="0.5-3"
+PACKAGE="kafs-client"
+
+function pod_to_man {
+    action=$1
+    section=$2
+    this_pod="${3}.pod"
+    this_man="${3}.$section"
+    case $action in
+        gen)
+            pod2man --release=$VERSION \
+                    --section $section \
+                    --center=$PACKAGE \
+		            $this_pod > $this_man
+            ;;
+        clean)
+            if [ -e $this_man ]
+            then
+                rm -v $this_man
+            fi
+    esac
+}
+
+function display_usage {
+    echo ""
+    echo "Usage: AAA-MK-MAN [gen|clean]"
+    echo ""
+    echo "This script generates man pages for kafs-client from POD."
+    exit 1
+}
+
+##############################################################################
+# Main routine
+##############################################################################
+
+if [ "$1" = "" ]
+then
+    display_usage
+fi
+
+case $1 in
+    gen | clean)
+        pod_to_man $1 1 aklog-kafs
+        pod_to_man $1 5 kafs-client.conf
+        pod_to_man $1 7 kafs
+        pod_to_man $1 7 rxrpc
+        pod_to_man $1 8 kafs-preload
+        pod_to_man $1 8 kafs-check-config
+        pod_to_man $1 8 kafs-dns
+        ;;
+    *)
+        echo "ERROR: unknown action $1"
+        display_usage
+        ;;
+esac
+
+exit
+
